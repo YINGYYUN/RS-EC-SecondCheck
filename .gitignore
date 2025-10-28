@@ -1,0 +1,28 @@
+# 忽略 Keil 编译产物（核心）
+*.obj        # 目标文件
+*.lst        # 列表文件
+*.map        # 映射文件
+*.axf        # 可执行文件
+*.hex        # 十六进制文件
+*.bin        # 二进制文件
+*.crf        # 交叉引用文件
+*.o          # 目标文件（类似 .obj）
+*.d          # 依赖文件
+*.dep        # 依赖文件
+*.lnp        # 链接文件
+*.plg        # 构建日志
+*.sct        # 分散加载文件（部分项目会自动生成）
+*.txt        # 排除编译生成的 txt（如果你的项目需要手动创建的 txt，可删除这行）
+
+# 忽略 Keil 自动生成的文件夹
+Objects/     # 编译生成的目标文件目录
+Listings/    # 编译生成的列表文件目录
+
+# 忽略 IDE 配置文件（如 VS Code、Keil 的临时配置）
+.vscode/     # VS Code 配置目录
+*.uvguix.*   # Keil 的用户配置文件（如 .uvguix.HP，包含个人窗口布局等）
+*.bak        # 备份文件（如 Keil 自动生成的 .c.bak）
+
+# 忽略操作系统生成的文件
+Thumbs.db    # Windows 缩略图缓存
+.DS_Store    # Mac 系统文件
