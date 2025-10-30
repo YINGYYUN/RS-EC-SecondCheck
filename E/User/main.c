@@ -41,11 +41,14 @@ int main(void)
 }
 
 
-void TIM2_IRQHandler(void)
+void TIM1_UP_IRQHandler(void)
 {
-	if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)    //判断是否为定时器TIM2更新中断
+	//检查标志位
+	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
 	{
+		LED_Tick();
 		MPU6050_ReadDMP(&Pitch, &Roll, &Yaw);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);    //清除定时器TIM2更新中断标志位 
+		//清除标志位
+		TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
 	}
 }
