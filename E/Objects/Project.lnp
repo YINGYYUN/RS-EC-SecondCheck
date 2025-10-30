@@ -27,6 +27,7 @@
 ".\objects\stm32f10x_wwdg.o"
 ".\objects\delay.o"
 ".\objects\timer.o"
+".\objects\kalmanfilter.o"
 ".\objects\led.o"
 ".\objects\key.o"
 ".\objects\mpu6050.o"

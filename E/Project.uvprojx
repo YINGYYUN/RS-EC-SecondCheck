@@ -670,6 +670,16 @@
               <FileType>5</FileType>
               <FilePath>.\System\Timer.h</FilePath>
             </File>
+            <File>
+              <FileName>KalmanFilter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\KalmanFilter.c</FilePath>
+            </File>
+            <File>
+              <FileName>KalmanFilter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\KalmanFilter.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

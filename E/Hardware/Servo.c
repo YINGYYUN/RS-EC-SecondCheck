@@ -18,6 +18,10 @@ void Servo_Init(void)
   */
 void Servo_SetAngle(float Angle)
 {
-	PWM_SetCompare2(Angle / 180 * 2000 + 500);	//设置占空比
-												//将角度线性变换，对应到舵机要求的占空比范围上
+  // 将角度映射到常见舵机的 1.0ms ~ 2.0ms 脉宽范围（在 20ms 周期内）
+  // TIM2 的定时器周期为 20000 (20ms)，计数频率为 1MHz 时，1ms = 1000
+  float pulse = Angle / 180.0f * 1000.0f + 1000.0f; // [1000,2000]
+  if (pulse < 1000.0f) pulse = 1000.0f;
+  if (pulse > 2000.0f) pulse = 2000.0f;
+  PWM_SetCompare2((uint16_t)pulse);
 }
