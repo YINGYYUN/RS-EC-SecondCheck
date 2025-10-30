@@ -1,0 +1,12 @@
+.\objects\inv_mpu_dmp_motion_driver.o: Hardware\eMPL\inv_mpu_dmp_motion_driver.c
+.\objects\inv_mpu_dmp_motion_driver.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\inv_mpu_dmp_motion_driver.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\inv_mpu_dmp_motion_driver.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\inv_mpu_dmp_motion_driver.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\string.h
+.\objects\inv_mpu_dmp_motion_driver.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\math.h
+.\objects\inv_mpu_dmp_motion_driver.o: Hardware\eMPL\inv_mpu.h
+.\objects\inv_mpu_dmp_motion_driver.o: Hardware\eMPL\inv_mpu_dmp_motion_driver.h
+.\objects\inv_mpu_dmp_motion_driver.o: Hardware\eMPL\dmpKey.h
+.\objects\inv_mpu_dmp_motion_driver.o: Hardware\eMPL\dmpmap.h
+.\objects\inv_mpu_dmp_motion_driver.o: .\System\Delay.h
+.\objects\inv_mpu_dmp_motion_driver.o: .\Hardware\Serial.h
