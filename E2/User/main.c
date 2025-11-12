@@ -54,15 +54,18 @@ int main(void)
 		OLED_Update();
 		Angle = (Yaw + 180.0f) * 180.0f / 360.0f;
 		
-		if ((Angle <= 10.0f || 170.0f <= Angle) && LED_Mode == LED_SlowFlashMode )
+		if (Angle < 0.0f) Angle = 0.0f;
+		if (Angle > 180.0f) Angle = 180.0f;
+		
+		if ((Angle <= 15.0f || 165.0f <= Angle) && LED_Mode != LED_FastFlashMode )
 		{
 			LED_SetMode(LED_FastFlashMode);
-			Serial_SendString("[INFO]LED_SlowFlashMode\r\n");
+			Serial_SendString("[INFO]LED_FastFlashMode\r\n");
 		}
-		else if((10.0f <= Angle && Angle<= 170.0f) && LED_Mode == LED_FastFlashMode )
+		else if((10.0f <= Angle && Angle<= 170.0f) && LED_Mode != LED_SlowFlashMode )
 		{
 			LED_SetMode(LED_SlowFlashMode);
-			Serial_SendString("[INFO]LED_FastFlashMode\r\n");			
+			Serial_SendString("[INFO]LED_SlowFlashMode\r\n");			
 		}
 		
 //		BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
