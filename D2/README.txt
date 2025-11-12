@@ -16,3 +16,6 @@ PA10            RXD
 
 参考B站江协科技教程，实现了良好的解算
 【平衡车入门教程-持续更新中】https://www.bilibili.com/video/BV1kBanzfExg?p=5&vd_source=befff269c2e0ef1583e2528659770521
+
+进阶任务代码由Copilot完成
+Orz
