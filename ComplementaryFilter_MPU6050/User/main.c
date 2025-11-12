@@ -16,15 +16,15 @@ uint8_t TimerErrorFlag;
 //定时中断执行时长
 uint16_t TimerCount;
 
-float AngleAcc;			//加速度计算的俯仰角
-float AngleGyro;		//陀螺仪积分的俯仰角
-float Angle;			//融合后的俯仰角
-
 float RollAcc;    		// 加速度计计算的横滚角
 float RollGyro;   		// 陀螺仪积分的横滚角
 float Roll;       		// 融合后的横滚角
 
 float Yaw = 0;			//偏航角
+
+float PitchAcc;			//加速度计算的俯仰角
+float PitchGyro;		//陀螺仪积分的俯仰角
+float Pitch;			//融合后的俯仰角
 
 int main(void)
 {
@@ -57,7 +57,7 @@ int main(void)
 		OLED_Update();
 		
 //		BlueSerial_Printf("[plot,%d,%d,%d]", GX, GY, GZ);
-		Serial_Printf("%f,%f,%f\r\n", RollAcc, RollGyro,Roll);
+		Serial_Printf("%f,%f,%f\r\n", Roll, Yaw,Pitch);
 	}
 	
 }
@@ -78,12 +78,7 @@ void TIM1_UP_IRQHandler(void)
 		GX += 55;
 		GY += 18;
 		GZ += 10;
-		
-		// 俯仰角计算
-		 AngleAcc = -atan2(AX, AZ) / 3.14159 * 180;  			// 俯仰角（绕Y轴）
-        AngleGyro = Angle + GY / 32768.0 * 2000 * 0.001;  		// 陀螺仪积分（2000是量程，0.001是1ms采样间隔）
-        Angle = 0.001 * AngleAcc + (1 - 0.001) * AngleGyro;  	// 互补滤波
-		
+	
 		 // 横滚角计算
         RollAcc = atan2(AY, AZ) / 3.14159 * 180;  				// 横滚角（绕X轴）
         RollGyro = Roll + GX / 32768.0 * 2000 * 0.001;  		// 陀螺仪X轴积分
@@ -91,6 +86,11 @@ void TIM1_UP_IRQHandler(void)
 		
 		 // 偏航角：仅陀螺仪积分（无加速度计校准，会漂移）
         Yaw += GZ / 32768.0 * 2000 * 0.001;  // 仅积分，无校准
+		
+		// 俯仰角计算
+		PitchAcc = -atan2(AX, AZ) / 3.14159 * 180;  			// 俯仰角（绕Y轴）
+        PitchGyro = Pitch + GY / 32768.0 * 2000 * 0.001;  		// 陀螺仪积分（2000是量程，0.001是1ms采样间隔）
+        Pitch = 0.001 * PitchAcc + (1 - 0.001) * PitchGyro;  	// 互补滤波
 		
 //		//俯仰角
 //		AngleAcc = -atan2(AX, AZ) / 3.14159 * 180;
