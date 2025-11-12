@@ -11,10 +11,10 @@
 int16_t AX, AY, AZ, GX, GY, GZ;
 
 //定时中断重叠标志位
-uint8_t TimerErrorFlag;
+//uint8_t TimerErrorFlag;
 
 //定时中断执行时长
-uint16_t TimerCount;
+//uint16_t TimerCount;
 
 float RollAcc;    		// 加速度计计算的横滚角
 float RollGyro;   		// 陀螺仪积分的横滚角
@@ -51,8 +51,8 @@ int main(void)
 		OLED_Printf(64, 16, OLED_8X16, "%+06d", GY);
 		OLED_Printf(64, 32, OLED_8X16, "%+06d", GZ);
 		
-		OLED_Printf(0, 48, OLED_8X16, "Flag:%1d", TimerErrorFlag);
-		OLED_Printf(64, 48, OLED_8X16, "C:%05d", TimerCount);
+//		OLED_Printf(0, 48, OLED_8X16, "Flag:%1d", TimerErrorFlag);
+//		OLED_Printf(64, 48, OLED_8X16, "C:%05d", TimerCount);
 		
 		OLED_Update();
 		
@@ -101,13 +101,13 @@ void TIM1_UP_IRQHandler(void)
 //		float Alpha  = 0.001;
 //		Angle = Alpha * AngleAcc + (1 - Alpha) * AngleGyro;
 		
-		if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
-		{
-			//中断重叠标志位
-			TimerErrorFlag = 1;
-			//清除标志位
-			TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
-		}
-		TimerCount = TIM_GetCounter(TIM1);
+//		if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
+//		{
+//			//中断重叠标志位
+//			TimerErrorFlag = 1;
+//			//清除标志位
+//			TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
+//		}
+//		TimerCount = TIM_GetCounter(TIM1);
 	}
 }
