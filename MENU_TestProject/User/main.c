@@ -32,6 +32,10 @@ float Yaw = 0;			//偏航角
 float PitchAcc;			//加速度计算的俯仰角
 float PitchGyro;		//陀螺仪积分的俯仰角
 float Pitch;			//融合后的俯仰角
+
+// 绘制3D坐标系到OLED的辅助函数声明
+static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg);
+
 /*========= [END] MPU6050解算初始化模块 [END] =========*/
 
 
@@ -157,10 +161,16 @@ int main(void)
 
 						OLED_Clear();
 					
-						OLED_Printf(0, 0, OLED_8X16, "LED0:");
-						OLED_Printf(0, 16, OLED_8X16, "LED1:");
-						OLED_Printf(0, 32, OLED_8X16, "LED2:");
-						OLED_Printf(0, 48, OLED_8X16, "LED3:");
+						B0 = 0;
+						B1 = 0;
+						B2 = 0;
+						B3 = 0;
+					
+					
+						OLED_Printf(0, 0, OLED_8X16, "LED0:%03d", B0);
+						OLED_Printf(0, 16, OLED_8X16, "LED1:%03d", B1);
+						OLED_Printf(0, 32, OLED_8X16, "LED2:%03d", B2);
+						OLED_Printf(0, 48, OLED_8X16, "LED3:%03d", B3);
 								
 						OLED_Update();
 					
@@ -172,18 +182,18 @@ int main(void)
 						break;
 					
 					case MISSION_B:
+						
+						B0 = 0;
+						B1 = 0;
+						B2 = 0;
+						B3 = 0;
 
 						OLED_Clear();
 								
-						OLED_Printf(0, 0, OLED_8X16, "N0:");
-						OLED_Printf(0, 16, OLED_8X16, "N1:");
-						OLED_Printf(0, 32, OLED_8X16, "N2:");
-						OLED_Printf(0, 48, OLED_8X16, "N3:");
-					
-						OLED_Printf(56, 0, OLED_8X16, "F0:");
-						OLED_Printf(56, 16, OLED_8X16, "F1:");
-						OLED_Printf(56, 32, OLED_8X16, "F2:");
-						OLED_Printf(56, 48, OLED_8X16, "F3:");
+						OLED_Printf(0, 0, OLED_8X16, "N0:%04dF0:%04d", B0, 1000 - B0);
+						OLED_Printf(0, 16, OLED_8X16, "N1:%04dF1:%04d", B1, 1000 - B1);
+						OLED_Printf(0, 32, OLED_8X16, "N2:%04dF2:%04d", B2, 1000 - B2);
+						OLED_Printf(0, 48, OLED_8X16, "N3:%04dF3:%04d", B3, 1000 - B3);
 					
 						OLED_Update();
 					
@@ -201,7 +211,7 @@ int main(void)
 								
 						OLED_Update();
 					
-						MPU6050_ENABLE = 1;
+						MPU6050_ENABLE = 0;
 					
 						LED_SetMode(LED_ALL_OFF_Mode);
 					
@@ -290,7 +300,7 @@ int main(void)
 								case 0:
 									B0 = TempBright;
 								
-									OLED_Printf(40, 0, OLED_8X16, "%3d", B0 );
+									OLED_Printf(40, 0, OLED_8X16, "%03d", B0 );
 								
 									OLED_Update();
 								
@@ -299,7 +309,7 @@ int main(void)
 								case 1:
 									B1 = TempBright;
 								
-									OLED_Printf(40, 16, OLED_8X16, "%3d", B1 );
+									OLED_Printf(40, 16, OLED_8X16, "%03d", B1 );
 								
 									OLED_Update();
 								
@@ -308,7 +318,7 @@ int main(void)
 								case 2:
 									B2 = TempBright;
 								
-									OLED_Printf(40, 32, OLED_8X16, "%3d", B2 );
+									OLED_Printf(40, 32, OLED_8X16, "%03d", B2 );
 								
 									OLED_Update();
 									break;
@@ -316,7 +326,7 @@ int main(void)
 								case 3:
 									B3 = TempBright;
 								
-									OLED_Printf(40, 48, OLED_8X16, "%3d", B3 );
+									OLED_Printf(40, 48, OLED_8X16, "%03d", B3 );
 								
 									OLED_Update();
 								
@@ -338,23 +348,121 @@ int main(void)
 					else {
 						Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
 					}
-			Serial_RxFlag = 0;
-		}
+				Serial_RxFlag = 0;
+				}
 			
 			
 				break;
 			
 			case MISSION_B:
 			
+				if (Serial_RxFlag == 1)
+				{
+				Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
+
+					//更简单的判定
+					if (strstr(Serial_RxPacket, "LED") != NULL) {
+						int16_t LED_Num = -1;
+						int16_t TempBright = 0;
+						if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
+						{
+							if (TempBright >= 1000)TempBright = 100;
+							if (TempBright <= 0)TempBright = 0;
+							uint8_t Flag_Found = 1;
+							switch(LED_Num)
+							{
+								case 0:
+									B0 = TempBright;
+								
+									OLED_Printf(0, 0, OLED_8X16, "N0:%04dF0:%04d", B0, 1000 - B0);								
+									OLED_Update();
+								
+									break;
+								
+								case 1:
+									B1 = TempBright;
+								
+									OLED_Printf(0, 16, OLED_8X16, "N0:%04dF0:%04d", B1, 1000 - B1);								
+									OLED_Update();
+								
+									break;
+								
+								case 2:
+									B2 = TempBright;
+								
+									OLED_Printf(0, 32, OLED_8X16, "N0:%04dF0:%04d", B2, 1000 - B2);								
+									OLED_Update();
+								
+									break;
+								
+								case 3:
+									B3 = TempBright;
+								
+									OLED_Printf(0, 48, OLED_8X16, "N0:%04dF0:%04d", B3, 1000 - B3);
+									OLED_Update();
+								
+									break;
+								
+								default:
+									Flag_Found = 0;
+									Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+									break;
+							}
+							if(Flag_Found)Serial_Printf("[INFO]Set_LED%d:%d\r\n",LED_Num , (int)B3);//状态回传上位机
+						}
+						else 
+						{
+							Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+						}
+					}
+					else {
+						Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+					}
+				Serial_RxFlag = 0;
+				}
 			
 			
 				break;
 			
 			case MISSION_C:
+				MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
+
+				float AX_g, AY_g, AZ_g;
+				float GX_dps, GY_dps, GZ_dps;
+
+				AX_g = AX / 32768.0 * 16 * 9.8;
+				AY_g = AY / 32768.0 * 16 * 9.8;
+				AZ_g = AZ / 32768.0 * 16 * 9.8;
+				
+				GX_dps = GX / 32768.0 * 2000;
+				GY_dps = GY / 32768.0 * 2000;
+				GZ_dps = GZ / 32768.0 * 2000;
+								
+				OLED_Printf(0, 0, OLED_8X16, "%+05.2f", AX_g);					//OLED显示数据
+				OLED_Printf(0, 16, OLED_8X16, "%+05.2f", AY_g);
+				OLED_Printf(0, 32, OLED_8X16, "%+05.2f", AZ_g);
+				OLED_Printf(57, 0, OLED_8X16, "%+05.2f", GX_dps);
+				OLED_Printf(57, 16, OLED_8X16, "%+05.2f", GY_dps);
+				OLED_Printf(57, 32, OLED_8X16, "%+05.2f", GZ_dps);
+
+				OLED_Update();
+			
 			
 				break;
 			
 			case MISSION_D:
+				OLED_Printf(0, 0, OLED_8X16, "R:%+02.3f", Roll);
+				OLED_Printf(0, 16, OLED_8X16, "Y:%+02.3f", Yaw);
+				OLED_Printf(0, 32, OLED_8X16, "P:%+02.3f", Pitch);
+			
+				/* 在右侧区域绘制3D坐标系（根据传感器姿态） */
+				OLED_ClearArea(80, 0, 48, 64); // 清除右侧区域
+				OLED_Draw3DAxes(Roll, Yaw, Pitch);
+				
+				OLED_Update();
+			
+				//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
+				Serial_Printf("%f,%f,%f\r\n", Roll, Yaw, Pitch);
 			
 				break;
 			
@@ -381,7 +489,7 @@ int main(void)
 					Serial_SendString("[INFO]LED_SlowFlashMode\r\n");			
 				}
 				
-		//		BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
+				//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
 				Serial_Printf("%f,%f,%f,%f\r\n", Roll, Yaw, Pitch, Angle);
 				
 				Servo_SetAngle(Angle);
@@ -399,6 +507,101 @@ int main(void)
 	}
 	
 }
+
+
+/* =========[START] 坐标系计算模块 [START] =========*/
+
+
+/**
+ * 将三维坐标轴按当前姿态旋转并投影到OLED屏幕（单色）
+ * roll_deg, pitch_deg, yaw_deg 单位为度
+ */
+static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg)
+{
+	/* 参数 */
+	const float L = 20.0f;      // 轴长度（3D坐标单位）
+	const float f = 40.0f;      // 透视焦距（像素比例）
+	const float z_offset = 60.0f; // 将物体向后移动，避免除以负值
+
+	/* 屏幕中心（投影原点），放在右侧区域中心 */
+	const int cx = 104; // 80 + 24
+	const int cy = 32;
+
+	/* 角度转换为弧度 */
+	float roll = roll_deg * 3.1415926f / 180.0f;
+	float pitch = pitch_deg * 3.1415926f / 180.0f;
+	float yaw = yaw_deg * 3.1415926f / 180.0f;
+
+	/* 计算旋转矩阵 R = Rz(yaw) * Ry(pitch) * Rx(roll) */
+	float cr = cosf(roll), sr = sinf(roll);
+	float cp = cosf(pitch), sp = sinf(pitch);
+	float cyaw = cosf(yaw), syaw = sinf(yaw);
+
+	float R00 = cyaw * cp;
+	float R01 = cyaw * sp * sr - syaw * cr;
+	float R02 = cyaw * sp * cr + syaw * sr;
+
+	float R10 = syaw * cp;
+	float R11 = syaw * sp * sr + cyaw * cr;
+	float R12 = syaw * sp * cr - cyaw * sr;
+
+	float R20 = -sp;
+	float R21 = cp * sr;
+	float R22 = cp * cr;
+
+	/* 三个轴的基向量（X红，Y绿，Z蓝 — 单色显示为线条） */
+	float ax[3][3] = {{L,0,0},{0,L,0},{0,0,L}};
+
+	/* 投影并绘线 */
+	for (int i = 0; i < 3; i++)
+	{
+		/* 旋转 */
+		float x3 = R00 * ax[i][0] + R01 * ax[i][1] + R02 * ax[i][2];
+		float y3 = R10 * ax[i][0] + R11 * ax[i][1] + R12 * ax[i][2];
+		float z3 = R20 * ax[i][0] + R21 * ax[i][1] + R22 * ax[i][2];
+
+		/* 简单透视投影 */
+		float zc = z3 + z_offset;
+		if (zc < 5.0f) zc = 5.0f; // 避免太接近导致放大
+
+		int sx = (int)(cx + (f * x3) / zc);
+		int sy = (int)(cy - (f * y3) / zc); // 屏幕y向下，故这里取负
+
+		/* 原点屏幕坐标 */
+		int ox = cx;
+		int oy = cy;
+
+		/* 画轴线 */
+		OLED_DrawLine(ox, oy, sx, sy);
+
+		/* 画箭头（两个短线）*/
+		int dx = sx - ox;
+		int dy = sy - oy;
+		float len = sqrtf((float)(dx*dx + dy*dy));
+		if (len > 0.001f)
+		{
+			float ux = dx / len;
+			float uy = dy / len;
+			/* 箭头大小 */
+			float ah = 4.0f;
+			/* 两个方向，旋转±30度 */
+			float ang = 30.0f * 3.1415926f / 180.0f;
+			float cang = cosf(ang), sang = sinf(ang);
+
+			int ax1 = (int)(sx - ah * (ux * cang - uy * sang));
+			int ay1 = (int)(sy - ah * (ux * sang + uy * cang));
+			int ax2 = (int)(sx - ah * (ux * cang + uy * sang));
+			int ay2 = (int)(sy + ah * (ux * sang - uy * cang));
+
+			OLED_DrawLine(sx, sy, ax1, ay1);
+			OLED_DrawLine(sx, sy, ax2, ay2);
+		}
+	}
+}
+
+
+/* =========[END] 坐标系计算模块 [END] =========*/
+
 
 //1ms的定时中断
 void TIM1_UP_IRQHandler(void)

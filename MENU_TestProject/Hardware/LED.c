@@ -92,16 +92,16 @@ void LED_Tick(void)
 			LED_TimeCount ++;
 			LED_TimeCount %=100;
 			
-			if(B0 >= LED_TimeCount)LED_0_ON();
+			if(B0 > LED_TimeCount)LED_0_ON();
 			else LED_0_OFF();
 			
-			if(B1 >= LED_TimeCount)LED_1_ON();
+			if(B1 > LED_TimeCount)LED_1_ON();
 			else LED_1_OFF();
 			
-			if(B2 >= LED_TimeCount)LED_2_ON();
+			if(B2 > LED_TimeCount)LED_2_ON();
 			else LED_2_OFF();
 			
-			if(B3 >= LED_TimeCount)LED_3_ON();
+			if(B3 > LED_TimeCount)LED_3_ON();
 			else LED_3_OFF();
 		
 			break;
@@ -111,16 +111,16 @@ void LED_Tick(void)
 			LED_TimeCount ++;
 			LED_TimeCount %=1000;//防越界
 			
-			if(B0 >= LED_TimeCount)LED_0_ON();
+			if(B0 > LED_TimeCount)LED_0_ON();
 			else LED_0_OFF();
 			
-			if(B1 >= LED_TimeCount)LED_1_ON();
+			if(B1 > LED_TimeCount)LED_1_ON();
 			else LED_1_OFF();
 			
-			if(B2 >= LED_TimeCount)LED_2_ON();
+			if(B2 > LED_TimeCount)LED_2_ON();
 			else LED_2_OFF();
 			
-			if(B3 >= LED_TimeCount)LED_3_ON();
+			if(B3 > LED_TimeCount)LED_3_ON();
 			else LED_3_OFF();
 		
 			break;
