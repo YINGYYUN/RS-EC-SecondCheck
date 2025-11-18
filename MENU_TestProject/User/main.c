@@ -64,7 +64,7 @@ int main(void)
 	/* =========[SRART] 菜单初始化模块 [START] =========*/
 	OLED_Init();
 	
-	char Menu_Main[][12] = {"MISSION_A" ,"MISSION_B" ,"MISSION_C" ,"MISSION_D" ,"MISSION_E"}; 
+	char Menu_Main[][12] = {" MISSION_A" ," MISSION_B" ," MISSION_C" ," MISSION_D" ," MISSION_E"}; 
 	
 	//宏定义：页面
 	#define MENU					0                 
@@ -105,12 +105,12 @@ int main(void)
 	OLED_Clear();
 	
 	OLED_Printf(6, 0, OLED_6X8, Menu_Main[0]);
-	OLED_Printf(6, 10, OLED_6X8, Menu_Main[1]);
-	OLED_Printf(6, 20, OLED_6X8, Menu_Main[2]);
-	OLED_Printf(6, 30, OLED_6X8, Menu_Main[3]);
-	OLED_Printf(6, 40, OLED_6X8, Menu_Main[4]);
+	OLED_Printf(6, 12, OLED_6X8, Menu_Main[1]);
+	OLED_Printf(6, 24, OLED_6X8, Menu_Main[2]);
+	OLED_Printf(6, 36, OLED_6X8, Menu_Main[3]);
+	OLED_Printf(6, 48, OLED_6X8, Menu_Main[4]);
 
-	OLED_Printf(0, Location_MENU * 10, OLED_6X8, ">");
+	OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");
 	
 	OLED_Update();	
 	
@@ -130,20 +130,22 @@ int main(void)
 		//上键
 		if (CURRENT_MODE == MENU && KeyNum == 1)
 		{
-			OLED_Printf(0, Location_MENU * 10, OLED_6X8, " ");
-			Location_MENU = (Location_MENU - 1 + 5) % 5;
-			OLED_Printf(0, Location_MENU * 10, OLED_6X8, ">");
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");
 			
+			Location_MENU = (Location_MENU - 1 + 5) % 5;
+			
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");			
 			OLED_Update();
 		}
 		
 		//下键
 		else if (CURRENT_MODE == MENU && KeyNum == 2)
 		{
-			OLED_Printf(0, Location_MENU * 10, OLED_6X8, " ");
-			Location_MENU = (Location_MENU + 1 ) % 5;
-			OLED_Printf(0, Location_MENU * 10, OLED_6X8, ">");
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");
 			
+			Location_MENU = (Location_MENU + 1 ) % 5;
+			
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");			
 			OLED_Update();
 		}
 		
@@ -258,12 +260,12 @@ int main(void)
 				OLED_Clear();
 
 				OLED_Printf(6, 0, OLED_6X8, Menu_Main[0]);
-				OLED_Printf(6, 10, OLED_6X8, Menu_Main[1]);
-				OLED_Printf(6, 20, OLED_6X8, Menu_Main[2]);
-				OLED_Printf(6, 30, OLED_6X8, Menu_Main[3]);
-				OLED_Printf(6, 40, OLED_6X8, Menu_Main[4]);
+				OLED_Printf(6, 12, OLED_6X8, Menu_Main[1]);
+				OLED_Printf(6, 24, OLED_6X8, Menu_Main[2]);
+				OLED_Printf(6, 36, OLED_6X8, Menu_Main[3]);
+				OLED_Printf(6, 48, OLED_6X8, Menu_Main[4]);
 
-				OLED_Printf(0, Location_MENU * 10, OLED_6X8, ">");
+				OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");
 				
 				OLED_Update();	
 			}
