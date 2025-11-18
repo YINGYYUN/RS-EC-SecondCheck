@@ -808,7 +808,7 @@ I (.\Library\stm32f10x_usart.h)(0x4D783BB4)
 I (.\Library\stm32f10x_wwdg.h)(0x4D783BB4)
 I (.\Library\misc.h)(0x4D783BB4)
 F (.\System\Timer.h)(0x68E14C68)()
-F (.\Hardware\LED.c)(0x6900BF15)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I .\Start -I .\Library -I .\User -I .\System -I .\Hardware --no-multibyte-chars-I.\RTE\_Target_1-ID:\KeilC51\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-ID:\KeilC51\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o .\objects\led.o --omf_browse .\objects\led.crf --depend .\objects\led.d)
+F (.\Hardware\LED.c)(0x691C7760)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I .\Start -I .\Library -I .\User -I .\System -I .\Hardware --no-multibyte-chars-I.\RTE\_Target_1-ID:\KeilC51\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-ID:\KeilC51\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o .\objects\led.o --omf_browse .\objects\led.crf --depend .\objects\led.d)
 I (.\Start\stm32f10x.h)(0x4D783CB4)
 I (.\Start\core_cm3.h)(0x4D523B58)
 I (D:\KeilC51\ARM\ARMCC\include\stdint.h)(0x588B8344)
@@ -837,8 +837,8 @@ I (.\Library\stm32f10x_tim.h)(0x4D783BB4)
 I (.\Library\stm32f10x_usart.h)(0x4D783BB4)
 I (.\Library\stm32f10x_wwdg.h)(0x4D783BB4)
 I (.\Library\misc.h)(0x4D783BB4)
-I (Hardware\LED.h)(0x6900BF15)
-F (.\Hardware\LED.h)(0x6900BF15)()
+I (Hardware\LED.h)(0x691C75F5)
+F (.\Hardware\LED.h)(0x691C75F5)()
 F (.\Hardware\Key.c)(0x68DEA085)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I .\Start -I .\Library -I .\User -I .\System -I .\Hardware --no-multibyte-chars-I.\RTE\_Target_1-ID:\KeilC51\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-ID:\KeilC51\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o .\objects\key.o --omf_browse .\objects\key.crf --depend .\objects\key.d)
 I (.\Start\stm32f10x.h)(0x4D783CB4)
 I (.\Start\core_cm3.h)(0x4D523B58)
@@ -965,7 +965,7 @@ I (.\Library\stm32f10x_wwdg.h)(0x4D783BB4)
 I (.\Library\misc.h)(0x4D783BB4)
 I (.\System\Delay.h)(0x6130920D)
 I (.\System\Timer.h)(0x68E14C68)
-I (.\Hardware\LED.h)(0x6900BF15)
+I (.\Hardware\LED.h)(0x691C75F5)
 I (.\Hardware\OLED.h)(0x63087D1F)
 I (.\Hardware\Serial.h)(0x68F5C2C3)
 I (D:\KeilC51\ARM\ARMCC\include\stdio.h)(0x588B8344)

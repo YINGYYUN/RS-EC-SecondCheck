@@ -4,52 +4,52 @@
 
 void LED_Init(void)
 {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_10 |GPIO_Pin_11 ;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 |GPIO_Pin_5 ;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB,&GPIO_InitStructure);
+	GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
-	GPIO_SetBits(GPIOB, LED_ALL_PINS);
+	GPIO_SetBits(GPIOA, LED_ALL_PINS);
 }
 
 //LED开关
 void LED_0_ON(void)
 {
-	GPIO_ResetBits(GPIOB,LED_PIN_0);
+	GPIO_ResetBits(GPIOA,LED_PIN_0);
 }
 void LED_0_OFF(void)
 {
-	GPIO_SetBits(GPIOB,LED_PIN_0);
+	GPIO_SetBits(GPIOA,LED_PIN_0);
 }
 
 void LED_1_ON(void)
 {
-	GPIO_ResetBits(GPIOB,LED_PIN_1);
+	GPIO_ResetBits(GPIOA,LED_PIN_1);
 }
 void LED_1_OFF(void)
 {
-	GPIO_SetBits(GPIOB,LED_PIN_1);
+	GPIO_SetBits(GPIOA,LED_PIN_1);
 }
 
 void LED_2_ON(void)
 {
-	GPIO_ResetBits(GPIOB,LED_PIN_2);
+	GPIO_ResetBits(GPIOA,LED_PIN_2);
 }
 void LED_2_OFF(void)
 {
-	GPIO_SetBits(GPIOB,LED_PIN_2);
+	GPIO_SetBits(GPIOA,LED_PIN_2);
 }
 
 void LED_3_ON(void)
 {
-	GPIO_ResetBits(GPIOB,LED_PIN_3);
+	GPIO_ResetBits(GPIOA,LED_PIN_3);
 }
 void LED_3_OFF(void)
 {
-	GPIO_SetBits(GPIOB,LED_PIN_3);
+	GPIO_SetBits(GPIOA,LED_PIN_3);
 }
 
 static uint16_t LED_TimeCount = 0;//计时
