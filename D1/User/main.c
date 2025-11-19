@@ -4,217 +4,139 @@
 #include "MPU6050.h"
 #include "Serial.h"
 #include "Timer.h"
+
 #include <math.h>
-
-// 三维坐标结构体
-typedef struct {
-    float x;
-    float y;
-    float z;
-} Point3D;
-
-// 二维坐标结构体
-typedef struct {
-    int x;
-    int y;
-} Point2D;
 
 float Pitch, Roll, Yaw;
 
-// 三维坐标系顶点定义（原点和三轴端点）
-Point3D origin = {0, 0, 0};
-Point3D x_axis = {25, 0, 0};   // X轴长度（适配128x64屏幕）
-Point3D y_axis = {0, 25, 0};   // Y轴长度
-Point3D z_axis = {0, 0, 25};   // Z轴长度
+// 绘制3D坐标系到OLED的辅助函数声明
+static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg);
 
-// 相机 / 视角参数
-float cam_yaw = -30.0f;    // 相机绕Z轴旋转角（度），用于视角调整
-float cam_pitch = 20.0f;   // 相机俯仰角（度）
-float cam_distance = 80.0f; // 用于透视效果的相机距离/偏移
-int cam_mode = 1; // 0: 固定, 1: 自动环绕, 2: 跟随传感器
-
-// 弧度转换宏
-#define RAD(x) (x * 3.1415926f / 180.0f)
-
-// 屏幕中心坐标（128x64 OLED）
-#define CENTER_X 64
-#define CENTER_Y 32
-// 透视投影缩放因子
-#define PROJECTION_SCALE 80
-
-/**
- * @brief 欧拉角旋转3D点
- * @param p 原始3D点
- * @param roll 横滚角（度）
- * @param pitch 俯仰角（度）
- * @param yaw 偏航角（度）
- * @return 旋转后的3D点
- */
-Point3D rotate_point(Point3D p, float roll, float pitch, float yaw) {
-    float cr = cos(RAD(roll));
-    float sr = sin(RAD(roll));
-    float cp = cos(RAD(pitch));
-    float sp = sin(RAD(pitch));
-    float cy = cos(RAD(yaw));
-    float sy = sin(RAD(yaw));
-    
-    Point3D res;
-    // Z-Y-X顺序旋转矩阵计算
-    res.x = p.x * (cy * cp) + p.y * (cy * sp * sr - sy * cr) + p.z * (cy * sp * cr + sy * sr);
-    res.y = p.x * (sy * cp) + p.y * (sy * sp * sr + cy * cr) + p.z * (sy * sp * cr - cy * sr);
-    res.z = p.x * (-sp) + p.y * (cp * sr) + p.z * (cp * cr);
-    return res;
-}
-
-/**
- * @brief 将世界坐标根据相机参数变换到相机空间
- */
-Point3D apply_camera_transform(Point3D p) {
-    // 先做相机的俯仰（绕 X 轴）
-    float cp = cos(RAD(cam_pitch));
-    float sp = sin(RAD(cam_pitch));
-    float y1 = p.y * cp - p.z * sp;
-    float z1 = p.y * sp + p.z * cp;
-    float x1 = p.x;
-
-    // 再做相机围绕 Z 轴的偏航（绕 Z 轴）
-    float cy = cos(RAD(cam_yaw));
-    float sy = sin(RAD(cam_yaw));
-    float x2 = x1 * cy - y1 * sy;
-    float y2 = x1 * sy + y1 * cy;
-    float z2 = z1 + cam_distance; // 将相机沿 z 方向后移一个距离以产生透视
-
-    Point3D out = {x2, y2, z2};
-    return out;
-}
-
-/**
- * @brief 3D点透视投影到2D屏幕
- * @param p 旋转后的3D点
- * @return 投影后的2D点
- */
-Point2D project_point(Point3D p) {
-    Point2D res;
-    // 透视缩放（z越大，投影越小）
-    float scale = PROJECTION_SCALE / (PROJECTION_SCALE + p.z);
-    // 转换到屏幕坐标（Y轴向下为正）
-    res.x = CENTER_X + (int)(p.x * scale);
-    res.y = CENTER_Y + (int)(p.y * scale);
-    return res;
-}
-
-/**
- * @brief 绘制坐标轴端点标记（区分不同轴）
- * @param p 2D端点坐标
- * @param axis 轴标识（0:X, 1:Y, 2:Z）
- */
-void draw_axis_marker(Point2D p, uint8_t axis) {
-    switch(axis) {
-        case 0:  // X轴：绘制右向箭头
-            OLED_DrawLine(p.x, p.y, p.x+3, p.y-2);
-            OLED_DrawLine(p.x, p.y, p.x+3, p.y+2);
-            break;
-        case 1:  // Y轴：绘制上向箭头
-            OLED_DrawLine(p.x, p.y, p.x-2, p.y-3);
-            OLED_DrawLine(p.x, p.y, p.x+2, p.y-3);
-            break;
-        case 2:  // Z轴：绘制圆点
-            OLED_DrawLine(p.x-1, p.y-1, p.x+1, p.y+1);
-            OLED_DrawLine(p.x-1, p.y+1, p.x+1, p.y-1);
-            break;
-    }
-}
-
-/**
- * @brief 绘制动态三维坐标系
- */
-void draw_3d_coordinate() {
-    // 1. 旋转三维坐标点（传感器坐标 -> 世界坐标）
-    Point3D o_rot = rotate_point(origin, Roll, Pitch, Yaw);
-    Point3D x_rot = rotate_point(x_axis, Roll, Pitch, Yaw);
-    Point3D y_rot = rotate_point(y_axis, Roll, Pitch, Yaw);
-    Point3D z_rot = rotate_point(z_axis, Roll, Pitch, Yaw);
-
-    // 可选：根据相机模式动态调整视角
-    if (cam_mode == 1) {
-        // 自动环绕：缓慢改变相机偏航角以获得动态视角
-        cam_yaw += 1.0f; // 每帧旋转1度（速度可调）
-        if (cam_yaw >= 360.0f) cam_yaw -= 360.0f;
-    } else if (cam_mode == 2) {
-        // 跟随传感器：将相机角度设置为传感器的偏航与俯仰（简化）
-        cam_yaw = -Yaw;   // 取负可以获得更直观的跟随效果
-        cam_pitch = Pitch;
-    }
-
-    // 2. 将世界坐标变换到相机视角（摄像机坐标系）
-    Point3D o_cam = apply_camera_transform(o_rot);
-    Point3D x_cam = apply_camera_transform(x_rot);
-    Point3D y_cam = apply_camera_transform(y_rot);
-    Point3D z_cam = apply_camera_transform(z_rot);
-
-    // 3. 投影到二维平面
-    Point2D o_proj = project_point(o_cam);
-    Point2D x_proj = project_point(x_cam);
-    Point2D y_proj = project_point(y_cam);
-    Point2D z_proj = project_point(z_cam);
-    
-    // 3. 清屏并绘制
-    OLED_Clear();
-    
-    // 绘制坐标轴（移除多余的颜色参数）
-    OLED_DrawLine(o_proj.x, o_proj.y, x_proj.x, x_proj.y);  // X轴
-    OLED_DrawLine(o_proj.x, o_proj.y, y_proj.x, y_proj.y);  // Y轴
-    OLED_DrawLine(o_proj.x, o_proj.y, z_proj.x, z_proj.y);  // Z轴
-    
-    // 绘制端点标记
-    draw_axis_marker(x_proj, 0);
-    draw_axis_marker(y_proj, 1);
-    draw_axis_marker(z_proj, 2);
-
-    // 绘制简单地面网格（稀疏）以增强深度感知
-    for (int gx = -2; gx <= 2; gx++) {
-        Point3D p1 = {gx * 10.0f, -20.0f, 0.0f};
-        Point3D p2 = {gx * 10.0f, 20.0f, 0.0f};
-        Point2D pp1 = project_point(apply_camera_transform(p1));
-        Point2D pp2 = project_point(apply_camera_transform(p2));
-        OLED_DrawLine(pp1.x, pp1.y, pp2.x, pp2.y);
-    }
-    for (int gy = -2; gy <= 2; gy++) {
-        Point3D p1 = {-20.0f, gy * 10.0f, 0.0f};
-        Point3D p2 = {20.0f, gy * 10.0f, 0.0f};
-        Point2D pp1 = project_point(apply_camera_transform(p1));
-        Point2D pp2 = project_point(apply_camera_transform(p2));
-        OLED_DrawLine(pp1.x, pp1.y, pp2.x, pp2.y);
-    }
-    
-    // 显示姿态数据
-    OLED_Printf(0, 0, OLED_8X16, "Roll :%+06.1f", Roll);
-    OLED_Printf(0, 16, OLED_8X16, "Yaw  :%+06.1f", Yaw);
-    OLED_Printf(0, 32, OLED_8X16, "Pitch:%+06.1f", Pitch);
-    
-    OLED_Update();
-}
-
-int main(void) {
+int main(void)
+{
     OLED_Init();
     Serial_Init();
-    MPU6050_DMPInit();
-    Timer_Init();
-    
-    OLED_ShowString(0, 48, "3D Coordinate", OLED_8X16);  // 底部提示文本
-    Delay_ms(1000);  // 初始化显示延迟
-    
-    while(1) {
-        draw_3d_coordinate();  // 主循环绘制三维坐标系
+	MPU6050_DMPInit();
+	Timer_Init();
+	
+	OLED_ShowString(0, 0, "MPU6050", OLED_8X16);
+	
+    while(1)
+    {
+		OLED_Printf(0, 0, OLED_8X16, "R:%+02.3f", Roll);
+		OLED_Printf(0, 16, OLED_8X16, "Y:%+02.3f", Yaw);
+		OLED_Printf(0, 32, OLED_8X16, "P:%+02.3f", Pitch);
+
+		/* 在右侧区域绘制3D坐标系（根据传感器姿态） */
+		OLED_ClearArea(80, 0, 48, 64); // 清除右侧区域
+		OLED_Draw3DAxes(Roll, Yaw, Pitch);
+		
+		OLED_Update();
+		
+//		BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
+		Serial_Printf("%f,%f,%f\r\n", Roll, Yaw, Pitch);
     }
 }
 
+
 /**
- * @brief TIM2定时中断函数，更新姿态数据
+ * 将三维坐标轴按当前姿态旋转并投影到OLED屏幕（单色）
+ * roll_deg, pitch_deg, yaw_deg 单位为度
  */
-void TIM2_IRQHandler(void) {
-    if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
-        MPU6050_ReadDMP(&Pitch, &Roll, &Yaw);  // 读取姿态角
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-    }
+static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg)
+{
+	/* 参数 */
+	const float L = 20.0f;      // 轴长度（3D坐标单位）
+	const float f = 40.0f;      // 透视焦距（像素比例）
+	const float z_offset = 60.0f; // 将物体向后移动，避免除以负值
+
+	/* 屏幕中心（投影原点），放在右侧区域中心 */
+	const int cx = 104; // 80 + 24
+	const int cy = 32;
+
+	/* 角度转换为弧度 */
+	float roll = roll_deg * 3.1415926f / 180.0f;
+	float pitch = pitch_deg * 3.1415926f / 180.0f;
+	float yaw = yaw_deg * 3.1415926f / 180.0f;
+
+	/* 计算旋转矩阵 R = Rz(yaw) * Ry(pitch) * Rx(roll) */
+	float cr = cosf(roll), sr = sinf(roll);
+	float cp = cosf(pitch), sp = sinf(pitch);
+	float cyaw = cosf(yaw), syaw = sinf(yaw);
+
+	float R00 = cyaw * cp;
+	float R01 = cyaw * sp * sr - syaw * cr;
+	float R02 = cyaw * sp * cr + syaw * sr;
+
+	float R10 = syaw * cp;
+	float R11 = syaw * sp * sr + cyaw * cr;
+	float R12 = syaw * sp * cr - cyaw * sr;
+
+	float R20 = -sp;
+	float R21 = cp * sr;
+	float R22 = cp * cr;
+
+	/* 三个轴的基向量（X红，Y绿，Z蓝 — 单色显示为线条） */
+	float ax[3][3] = {{L,0,0},{0,L,0},{0,0,L}};
+
+	/* 投影并绘线 */
+	for (int i = 0; i < 3; i++)
+	{
+		/* 旋转 */
+		float x3 = R00 * ax[i][0] + R01 * ax[i][1] + R02 * ax[i][2];
+		float y3 = R10 * ax[i][0] + R11 * ax[i][1] + R12 * ax[i][2];
+		float z3 = R20 * ax[i][0] + R21 * ax[i][1] + R22 * ax[i][2];
+
+		/* 简单透视投影 */
+		float zc = z3 + z_offset;
+		if (zc < 5.0f) zc = 5.0f; // 避免太接近导致放大
+
+		int sx = (int)(cx + (f * x3) / zc);
+		int sy = (int)(cy - (f * y3) / zc); // 屏幕y向下，故这里取负
+
+		/* 原点屏幕坐标 */
+		int ox = cx;
+		int oy = cy;
+
+		/* 画轴线 */
+		OLED_DrawLine(ox, oy, sx, sy);
+
+		/* 画箭头（两个短线）*/
+		int dx = sx - ox;
+		int dy = sy - oy;
+		float len = sqrtf((float)(dx*dx + dy*dy));
+		if (len > 0.001f)
+		{
+			float ux = dx / len;
+			float uy = dy / len;
+			/* 箭头大小 */
+			float ah = 4.0f;
+			/* 两个方向，旋转±30度 */
+			float ang = 30.0f * 3.1415926f / 180.0f;
+			float cang = cosf(ang), sang = sinf(ang);
+
+			int ax1 = (int)(sx - ah * (ux * cang - uy * sang));
+			int ay1 = (int)(sy - ah * (ux * sang + uy * cang));
+			int ax2 = (int)(sx - ah * (ux * cang + uy * sang));
+			int ay2 = (int)(sy + ah * (ux * sang - uy * cang));
+
+			OLED_DrawLine(sx, sy, ax1, ay1);
+			OLED_DrawLine(sx, sy, ax2, ay2);
+		}
+	}
+}
+
+
+/**
+  * @brief  TIM2定时中断函数，复制到main
+  * @param  无
+  * @retval 无
+  */
+void TIM2_IRQHandler(void)
+{
+	if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET)    //判断是否为定时器TIM2更新中断
+	{
+		MPU6050_ReadDMP(&Pitch, &Roll, &Yaw);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);    //清除定时器TIM2更新中断标志位 
+	}
 }

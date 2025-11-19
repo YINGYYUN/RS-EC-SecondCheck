@@ -34,4 +34,3 @@
 .\objects\mpu6050.o: .\Hardware\eMPL\inv_mpu.h
 .\objects\mpu6050.o: .\Hardware\eMPL\inv_mpu_dmp_motion_driver.h
 .\objects\mpu6050.o: Hardware\Serial.h
-.\objects\mpu6050.o: D:\KeilC51\ARM\ARMCC\Bin\..\include\stdio.h
