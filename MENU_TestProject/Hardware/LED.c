@@ -90,7 +90,7 @@ void LED_Tick(void)
 		//LED亮度控制模式(通过串口)
 		case LED_SET_BRIGHT_MODE:
 			LED_TimeCount ++;
-			LED_TimeCount %=100;
+			LED_TimeCount %=10;
 			
 			if(B0 > LED_TimeCount)LED_0_ON();
 			else LED_0_OFF();

@@ -41,8 +41,6 @@ static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg);
 
 //舵机角度
 float Angle = 90.0f;
-uint8_t KeyNum,nm;
-
 
 int main(void)
 {
@@ -168,11 +166,12 @@ int main(void)
 						B2 = 0;
 						B3 = 0;
 					
+						OLED_Printf(0, 0, OLED_8X16, "Rx:");
 					
-						OLED_Printf(0, 0, OLED_8X16, "LED0:%03d", B0);
-						OLED_Printf(0, 16, OLED_8X16, "LED1:%03d", B1);
-						OLED_Printf(0, 32, OLED_8X16, "LED2:%03d", B2);
-						OLED_Printf(0, 48, OLED_8X16, "LED3:%03d", B3);
+						OLED_Printf(0, 16, OLED_8X16, "L0:%02d", B0);
+						OLED_Printf(64, 16, OLED_8X16, "L1:%02d", B1);
+						OLED_Printf(0, 32, OLED_8X16, "L2:%02d", B2);
+						OLED_Printf(64, 32, OLED_8X16, "L3:%02d", B3);
 								
 						OLED_Update();
 					
@@ -192,10 +191,11 @@ int main(void)
 
 						OLED_Clear();
 								
-						OLED_Printf(0, 0, OLED_8X16, "N0:%04dF0:%04d", B0, 1000 - B0);
-						OLED_Printf(0, 16, OLED_8X16, "N1:%04dF1:%04d", B1, 1000 - B1);
-						OLED_Printf(0, 32, OLED_8X16, "N2:%04dF2:%04d", B2, 1000 - B2);
-						OLED_Printf(0, 48, OLED_8X16, "N3:%04dF3:%04d", B3, 1000 - B3);
+						OLED_Printf(0, 0, OLED_8X16, "Rx:");
+					
+						OLED_Printf(0, 16, OLED_8X16, "L0:%04d  L1:%04d", B0, B1);
+						OLED_Printf(0, 32, OLED_8X16, "L2:%04d  L3:%04d", B2, B3);
+
 					
 						OLED_Update();
 					
@@ -256,6 +256,11 @@ int main(void)
 			{
 				LED_SetMode(LED_ALL_OFF_Mode);
 				CURRENT_MODE = MENU;
+				
+				MPU6050_ENABLE = 0;
+				
+				Angle = 90.0f;
+				Servo_SetAngle(Angle);
 		
 				OLED_Clear();
 
@@ -284,7 +289,11 @@ int main(void)
 				if (Serial_RxFlag == 1)
 				{
 				//输入示例@LED0%80 (\r\n)
+				OLED_Printf(24, 0, OLED_8X16, "             ");
+				OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
 				
+				OLED_Update();
+					
 				Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
 
 					if (strstr(Serial_RxPacket, "LED") != NULL) 
@@ -293,7 +302,7 @@ int main(void)
 						int16_t TempBright = 0;
 						if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
 						{
-							if (TempBright >= 100)TempBright = 100;
+							if (TempBright >= 10)TempBright = 10;
 							if (TempBright <= 0)TempBright = 0;
 							uint8_t Flag_Found = 1;
 
@@ -302,7 +311,7 @@ int main(void)
 								case 0:
 									B0 = TempBright;
 								
-									OLED_Printf(40, 0, OLED_8X16, "%03d", B0 );
+									OLED_Printf(24, 16, OLED_8X16, "%02d", B0 );
 								
 									OLED_Update();
 								
@@ -311,7 +320,7 @@ int main(void)
 								case 1:
 									B1 = TempBright;
 								
-									OLED_Printf(40, 16, OLED_8X16, "%03d", B1 );
+									OLED_Printf(88, 16, OLED_8X16, "%02d", B1 );
 								
 									OLED_Update();
 								
@@ -320,7 +329,7 @@ int main(void)
 								case 2:
 									B2 = TempBright;
 								
-									OLED_Printf(40, 32, OLED_8X16, "%03d", B2 );
+									OLED_Printf(24, 32, OLED_8X16, "%02d", B2 );
 								
 									OLED_Update();
 									break;
@@ -328,7 +337,7 @@ int main(void)
 								case 3:
 									B3 = TempBright;
 								
-									OLED_Printf(40, 48, OLED_8X16, "%03d", B3 );
+									OLED_Printf(88, 32, OLED_8X16, "%02d", B3 );
 								
 									OLED_Update();
 								
@@ -368,7 +377,7 @@ int main(void)
 						int16_t TempBright = 0;
 						if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
 						{
-							if (TempBright >= 1000)TempBright = 100;
+							if (TempBright >= 1000)TempBright = 1000;
 							if (TempBright <= 0)TempBright = 0;
 							uint8_t Flag_Found = 1;
 							switch(LED_Num)
@@ -376,7 +385,7 @@ int main(void)
 								case 0:
 									B0 = TempBright;
 								
-									OLED_Printf(0, 0, OLED_8X16, "N0:%04dF0:%04d", B0, 1000 - B0);								
+									OLED_Printf(24, 16, OLED_8X16, "%04d", B0);								
 									OLED_Update();
 								
 									break;
@@ -384,7 +393,7 @@ int main(void)
 								case 1:
 									B1 = TempBright;
 								
-									OLED_Printf(0, 16, OLED_8X16, "N0:%04dF0:%04d", B1, 1000 - B1);								
+									OLED_Printf(96, 16, OLED_8X16, "%04d", B1);								
 									OLED_Update();
 								
 									break;
@@ -392,7 +401,7 @@ int main(void)
 								case 2:
 									B2 = TempBright;
 								
-									OLED_Printf(0, 32, OLED_8X16, "N0:%04dF0:%04d", B2, 1000 - B2);								
+									OLED_Printf(24, 32, OLED_8X16, "%04d", B2);								
 									OLED_Update();
 								
 									break;
@@ -400,7 +409,7 @@ int main(void)
 								case 3:
 									B3 = TempBright;
 								
-									OLED_Printf(0, 48, OLED_8X16, "N0:%04dF0:%04d", B3, 1000 - B3);
+									OLED_Printf(96, 32, OLED_8X16, "%04d", B3);
 									OLED_Update();
 								
 									break;
@@ -429,6 +438,12 @@ int main(void)
 			case MISSION_C:
 				MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
 
+				//校准零飘
+				GX += 55;
+				GY += 18;
+				GZ += 10;
+			
+			
 				float AX_g, AY_g, AZ_g;
 				float GX_dps, GY_dps, GZ_dps;
 
