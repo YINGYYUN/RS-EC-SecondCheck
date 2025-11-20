@@ -369,6 +369,10 @@ int main(void)
 			
 				if (Serial_RxFlag == 1)
 				{
+				OLED_Printf(24, 0, OLED_8X16, "             ");
+				OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
+				
+				OLED_Update();
 				Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
 
 					//更简单的判定
