@@ -670,6 +670,11 @@
               <FileType>5</FileType>
               <FilePath>.\System\Timer.h</FilePath>
             </File>
+            <File>
+              <FileName>Project.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\Project.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

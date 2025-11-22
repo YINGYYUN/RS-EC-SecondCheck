@@ -1,16 +1,6 @@
 #include "stm32f10x.h"                  // Device header
-#include "Delay.h"
-#include "Timer.h"
-#include "OLED.h"
-#include "LED.h"
-#include "Serial.h"
-#include "MPU6050.h"
-#include "Servo.h"
-#include "Key.h"
 
-#include <math.h>
-#include <string.h>
-
+#include "Project.h"
 
 /* ========= [START] MPU6050解算初始化模块 [START] =========*/
 int16_t AX, AY, AZ, GX, GY, GZ;
@@ -115,7 +105,11 @@ int main(void)
 	Serial_SendString("[INFO]MENU_READY\r\n");
 	/* =========[END] 菜单初始化模块 [END] =========*/
 
-	
+	void Function_A(void);
+	void Function_B(void);
+	void Function_C(void);
+	void Function_D(void);
+	void Function_E(void);
 	
 	Serial_SendString("[INFO]LED_ALL_OFF_Mode\r\n");
 	
@@ -286,234 +280,27 @@ int main(void)
 				break;
 			
 			case MISSION_A:
-				if (Serial_RxFlag == 1)
-				{
-				//输入示例@LED0%80 (\r\n)
-				OLED_Printf(24, 0, OLED_8X16, "             ");
-				OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
-				
-				OLED_Update();
-					
-				Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
-
-					if (strstr(Serial_RxPacket, "LED") != NULL) 
-					{
-						int16_t LED_Num = -1;
-						int16_t TempBright = 0;
-						if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
-						{
-							if (TempBright >= 10)TempBright = 10;
-							if (TempBright <= 0)TempBright = 0;
-							uint8_t Flag_Found = 1;
-
-							switch(LED_Num)
-							{
-								case 0:
-									B0 = TempBright;
-								
-									OLED_Printf(24, 16, OLED_8X16, "%02d", B0 );
-								
-									OLED_Update();
-								
-									break;
-								
-								case 1:
-									B1 = TempBright;
-								
-									OLED_Printf(88, 16, OLED_8X16, "%02d", B1 );
-								
-									OLED_Update();
-								
-									break;
-								
-								case 2:
-									B2 = TempBright;
-								
-									OLED_Printf(24, 32, OLED_8X16, "%02d", B2 );
-								
-									OLED_Update();
-									break;
-								
-								case 3:
-									B3 = TempBright;
-								
-									OLED_Printf(88, 32, OLED_8X16, "%02d", B3 );
-								
-									OLED_Update();
-								
-									break;
-								
-								default:
-									Flag_Found = 0;
-									Serial_SendString("[INFO]INVALID_NUM\r\n");//状态回传上位机
-									break;
-							}
-							if(Flag_Found)Serial_Printf("[INFO]Set_LED%d:%d\r\n", LED_Num, (int)B3);//状态回传上位机
-						}
-						else 
-						{
-							Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
-						}
-						
-					}
-					else {
-						Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
-					}
-				Serial_RxFlag = 0;
-				}
-			
+				Function_A();
 			
 				break;
 			
 			case MISSION_B:
-			
-				if (Serial_RxFlag == 1)
-				{
-				OLED_Printf(24, 0, OLED_8X16, "             ");
-				OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
-				
-				OLED_Update();
-				Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
-
-					//更简单的判定
-					if (strstr(Serial_RxPacket, "LED") != NULL) {
-						int16_t LED_Num = -1;
-						int16_t TempBright = 0;
-						if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
-						{
-							if (TempBright >= 1000)TempBright = 1000;
-							if (TempBright <= 0)TempBright = 0;
-							uint8_t Flag_Found = 1;
-							switch(LED_Num)
-							{
-								case 0:
-									B0 = TempBright;
-								
-									OLED_Printf(24, 16, OLED_8X16, "%04d", B0);								
-									OLED_Update();
-								
-									break;
-								
-								case 1:
-									B1 = TempBright;
-								
-									OLED_Printf(96, 16, OLED_8X16, "%04d", B1);								
-									OLED_Update();
-								
-									break;
-								
-								case 2:
-									B2 = TempBright;
-								
-									OLED_Printf(24, 32, OLED_8X16, "%04d", B2);								
-									OLED_Update();
-								
-									break;
-								
-								case 3:
-									B3 = TempBright;
-								
-									OLED_Printf(96, 32, OLED_8X16, "%04d", B3);
-									OLED_Update();
-								
-									break;
-								
-								default:
-									Flag_Found = 0;
-									Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
-									break;
-							}
-							if(Flag_Found)Serial_Printf("[INFO]Set_LED%d:%d\r\n",LED_Num , (int)B3);//状态回传上位机
-						}
-						else 
-						{
-							Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
-						}
-					}
-					else {
-						Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
-					}
-				Serial_RxFlag = 0;
-				}
-			
+				Function_B();
 			
 				break;
 			
 			case MISSION_C:
-				MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
-
-				//校准零飘
-				GX += 55;
-				GY += 18;
-				GZ += 10;
-			
-			
-				float AX_g, AY_g, AZ_g;
-				float GX_dps, GY_dps, GZ_dps;
-
-				AX_g = AX / 32768.0 * 16 * 9.8;
-				AY_g = AY / 32768.0 * 16 * 9.8;
-				AZ_g = AZ / 32768.0 * 16 * 9.8;
-				
-				GX_dps = GX / 32768.0 * 2000;
-				GY_dps = GY / 32768.0 * 2000;
-				GZ_dps = GZ / 32768.0 * 2000;
-								
-				OLED_Printf(0, 0, OLED_8X16, "%+05.2f", AX_g);					//OLED显示数据
-				OLED_Printf(0, 16, OLED_8X16, "%+05.2f", AY_g);
-				OLED_Printf(0, 32, OLED_8X16, "%+05.2f", AZ_g);
-				OLED_Printf(57, 0, OLED_8X16, "%+05.2f", GX_dps);
-				OLED_Printf(57, 16, OLED_8X16, "%+05.2f", GY_dps);
-				OLED_Printf(57, 32, OLED_8X16, "%+05.2f", GZ_dps);
-
-				OLED_Update();
-			
+				Function_C();
 			
 				break;
 			
 			case MISSION_D:
-				OLED_Printf(0, 0, OLED_8X16, "R:%+02.3f", Roll);
-				OLED_Printf(0, 16, OLED_8X16, "Y:%+02.3f", Yaw);
-				OLED_Printf(0, 32, OLED_8X16, "P:%+02.3f", Pitch);
-			
-				/* 在右侧区域绘制3D坐标系（根据传感器姿态） */
-				OLED_ClearArea(80, 0, 48, 64); // 清除右侧区域
-				OLED_Draw3DAxes(Roll, Yaw, Pitch);
-				
-				OLED_Update();
-			
-				//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
-				Serial_Printf("%f,%f,%f\r\n", Roll, Yaw, Pitch);
+				Function_D();
 			
 				break;
 			
 			case MISSION_E:
-				
-				OLED_Printf(0, 0, OLED_8X16, "Roll :%+02.3f", Roll);
-				OLED_Printf(0, 16, OLED_8X16, "Yaw  :%+02.3f", Yaw);
-				OLED_Printf(0, 32, OLED_8X16, "Pitch:%+02.3f", Pitch);
-				
-				OLED_Update();
-				Angle = (Yaw + 180.0f) * 180.0f / 360.0f;
-				
-				if (Angle < 0.0f) Angle = 0.0f;
-				if (Angle > 180.0f) Angle = 180.0f;
-				
-				if ((Angle <= 15.0f || 165.0f <= Angle) && LED_Mode != LED_PIN_0_FastFlash_Mode )
-				{
-					LED_SetMode(LED_PIN_0_FastFlash_Mode);
-					Serial_SendString("[INFO]LED_FastFlashMode\r\n");
-				}
-				else if((10.0f <= Angle && Angle<= 170.0f) && LED_Mode != LED_PIN_0_SlowFlash_Mode )
-				{
-					LED_SetMode(LED_PIN_0_SlowFlash_Mode);
-					Serial_SendString("[INFO]LED_SlowFlashMode\r\n");			
-				}
-				
-				//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
-				Serial_Printf("%f,%f,%f,%f\r\n", Roll, Yaw, Pitch, Angle);
-				
-				Servo_SetAngle(Angle);
+				Function_E();
 			
 				break;
 			
@@ -528,6 +315,257 @@ int main(void)
 	}
 	
 }
+
+/* =========[START] 任务A [START] =========*/
+void Function_A(void)
+{
+	if (Serial_RxFlag == 1)
+	{
+	//输入示例@LED0%80 (\r\n)
+	OLED_Printf(24, 0, OLED_8X16, "             ");
+	OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
+	
+	OLED_Update();
+		
+	Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
+
+		if (strstr(Serial_RxPacket, "LED") != NULL) 
+		{
+			int16_t LED_Num = -1;
+			int16_t TempBright = 0;
+			if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
+			{
+				if (TempBright >= 10)TempBright = 10;
+				if (TempBright <= 0)TempBright = 0;
+				uint8_t Flag_Found = 1;
+
+				switch(LED_Num)
+				{
+					case 0:
+						B0 = TempBright;
+					
+						OLED_Printf(24, 16, OLED_8X16, "%02d", B0 );
+					
+						OLED_Update();
+					
+						break;
+					
+					case 1:
+						B1 = TempBright;
+					
+						OLED_Printf(88, 16, OLED_8X16, "%02d", B1 );
+					
+						OLED_Update();
+					
+						break;
+					
+					case 2:
+						B2 = TempBright;
+					
+						OLED_Printf(24, 32, OLED_8X16, "%02d", B2 );
+					
+						OLED_Update();
+						break;
+					
+					case 3:
+						B3 = TempBright;
+					
+						OLED_Printf(88, 32, OLED_8X16, "%02d", B3 );
+					
+						OLED_Update();
+					
+						break;
+					
+					default:
+						Flag_Found = 0;
+						Serial_SendString("[INFO]INVALID_NUM\r\n");//状态回传上位机
+						break;
+				}
+				if(Flag_Found)Serial_Printf("[INFO]Set_LED%d:%d\r\n", LED_Num, (int)B3);//状态回传上位机
+			}
+			else 
+			{
+				Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+			}
+			
+		}
+		else {
+			Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+		}
+	Serial_RxFlag = 0;
+	}
+}
+/* =========[END] 任务A [END] =========*/
+
+
+
+
+/* =========[START] 任务B [START] =========*/
+void Function_B(void)
+{
+	if (Serial_RxFlag == 1)
+	{
+	OLED_Printf(24, 0, OLED_8X16, "             ");
+	OLED_Printf(24, 0, OLED_8X16, "%s", Serial_RxPacket);
+	
+	OLED_Update();
+	Serial_Printf("[INFO]Received: %s\r\n", Serial_RxPacket);//接收文本直接回传上位机
+
+		//更简单的判定
+		if (strstr(Serial_RxPacket, "LED") != NULL) {
+			int16_t LED_Num = -1;
+			int16_t TempBright = 0;
+			if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
+			{
+				if (TempBright >= 1000)TempBright = 1000;
+				if (TempBright <= 0)TempBright = 0;
+				uint8_t Flag_Found = 1;
+				switch(LED_Num)
+				{
+					case 0:
+						B0 = TempBright;
+					
+						OLED_Printf(24, 16, OLED_8X16, "%04d", B0);								
+						OLED_Update();
+					
+						break;
+					
+					case 1:
+						B1 = TempBright;
+					
+						OLED_Printf(96, 16, OLED_8X16, "%04d", B1);								
+						OLED_Update();
+					
+						break;
+					
+					case 2:
+						B2 = TempBright;
+					
+						OLED_Printf(24, 32, OLED_8X16, "%04d", B2);								
+						OLED_Update();
+					
+						break;
+					
+					case 3:
+						B3 = TempBright;
+					
+						OLED_Printf(96, 32, OLED_8X16, "%04d", B3);
+						OLED_Update();
+					
+						break;
+					
+					default:
+						Flag_Found = 0;
+						Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+						break;
+				}
+				if(Flag_Found)Serial_Printf("[INFO]Set_LED%d:%d\r\n",LED_Num , (int)B3);//状态回传上位机
+			}
+			else 
+			{
+				Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+			}
+		}
+		else {
+			Serial_SendString("[INFO]ERROR_COMMAND\r\n");//状态回传上位机
+		}
+	Serial_RxFlag = 0;
+	}
+}
+/* =========[END] 任务B [END] =========*/
+
+
+
+
+/* =========[START] 任务C [START] =========*/
+void Function_C(void)
+{
+	MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
+
+	//校准零飘
+	GX += 55;
+	GY += 18;
+	GZ += 10;
+
+
+	float AX_g, AY_g, AZ_g;
+	float GX_dps, GY_dps, GZ_dps;
+
+	AX_g = AX / 32768.0 * 16 * 9.8;
+	AY_g = AY / 32768.0 * 16 * 9.8;
+	AZ_g = AZ / 32768.0 * 16 * 9.8;
+	
+	GX_dps = GX / 32768.0 * 2000;
+	GY_dps = GY / 32768.0 * 2000;
+	GZ_dps = GZ / 32768.0 * 2000;
+					
+	OLED_Printf(0, 0, OLED_8X16, "%+05.2f", AX_g);					//OLED显示数据
+	OLED_Printf(0, 16, OLED_8X16, "%+05.2f", AY_g);
+	OLED_Printf(0, 32, OLED_8X16, "%+05.2f", AZ_g);
+	OLED_Printf(57, 0, OLED_8X16, "%+05.2f", GX_dps);
+	OLED_Printf(57, 16, OLED_8X16, "%+05.2f", GY_dps);
+	OLED_Printf(57, 32, OLED_8X16, "%+05.2f", GZ_dps);
+
+	OLED_Update();
+}
+/* =========[END] 任务C [END] =========*/
+
+
+
+
+/* =========[START] 任务D [START] =========*/
+void Function_D(void)
+{
+	OLED_Printf(0, 0, OLED_8X16, "R:%+02.3f", Roll);
+	OLED_Printf(0, 16, OLED_8X16, "Y:%+02.3f", Yaw);
+	OLED_Printf(0, 32, OLED_8X16, "P:%+02.3f", Pitch);
+
+	/* 在右侧区域绘制3D坐标系（根据传感器姿态） */
+	OLED_ClearArea(80, 0, 48, 64); // 清除右侧区域
+	OLED_Draw3DAxes(Roll, Yaw, Pitch);
+	
+	OLED_Update();
+
+	//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
+	Serial_Printf("%f,%f,%f\r\n", Roll, Yaw, Pitch);
+}
+/* =========[END] 任务D [END] =========*/
+
+
+
+
+/* =========[START] 任务E [START] =========*/
+void Function_E(void)
+{
+	OLED_Printf(0, 0, OLED_8X16, "Roll :%+02.3f", Roll);
+	OLED_Printf(0, 16, OLED_8X16, "Yaw  :%+02.3f", Yaw);
+	OLED_Printf(0, 32, OLED_8X16, "Pitch:%+02.3f", Pitch);
+	
+	OLED_Update();
+	Angle = (Yaw + 180.0f) * 180.0f / 360.0f;
+	
+	if (Angle < 0.0f) Angle = 0.0f;
+	if (Angle > 180.0f) Angle = 180.0f;
+	
+	if ((Angle <= 15.0f || 165.0f <= Angle) && LED_Mode != LED_PIN_0_FastFlash_Mode )
+	{
+		LED_SetMode(LED_PIN_0_FastFlash_Mode);
+		Serial_SendString("[INFO]LED_FastFlashMode\r\n");
+	}
+	else if((10.0f <= Angle && Angle<= 170.0f) && LED_Mode != LED_PIN_0_SlowFlash_Mode )
+	{
+		LED_SetMode(LED_PIN_0_SlowFlash_Mode);
+		Serial_SendString("[INFO]LED_SlowFlashMode\r\n");			
+	}
+	
+	//BlueSerial_Printf("[plot,%f,%f,%f]", Roll, Yaw, Pitch);
+	Serial_Printf("%f,%f,%f,%f\r\n", Roll, Yaw, Pitch, Angle);
+	
+	Servo_SetAngle(Angle);
+}
+/* =========[END] 任务E [END] =========*/
+
+
 
 
 /* =========[START] 坐标系计算模块 [START] =========*/
@@ -622,6 +660,8 @@ static void OLED_Draw3DAxes(float roll_deg, float pitch_deg, float yaw_deg)
 
 
 /* =========[END] 坐标系计算模块 [END] =========*/
+
+
 
 
 //1ms的定时中断
