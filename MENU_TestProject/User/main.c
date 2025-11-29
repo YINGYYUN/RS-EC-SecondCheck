@@ -122,10 +122,8 @@ int main(void)
 		//上键
 		if (CURRENT_MODE == MENU && KeyNum == 1)
 		{
-			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");
-			
-			Location_MENU = (Location_MENU - 1 + 5) % 5;
-			
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");			
+			Location_MENU = (Location_MENU - 1 + 5) % 5;			
 			OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");			
 			OLED_Update();
 		}
@@ -133,10 +131,8 @@ int main(void)
 		//下键
 		else if (CURRENT_MODE == MENU && KeyNum == 2)
 		{
-			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");
-			
-			Location_MENU = (Location_MENU + 1 ) % 5;
-			
+			OLED_Printf(0, Location_MENU * 12, OLED_6X8, " ");			
+			Location_MENU = (Location_MENU + 1 ) % 5;			
 			OLED_Printf(0, Location_MENU * 12, OLED_6X8, ">");			
 			OLED_Update();
 		}
@@ -147,26 +143,23 @@ int main(void)
 			//处在主菜单[一级]
 			if(CURRENT_MODE == MENU)
 			{
-				CURRENT_MODE = Location_MENU + 1;
-				
+				CURRENT_MODE = Location_MENU + 1;				
 				switch(CURRENT_MODE)
 				{
 					case MISSION_A:
 
-						OLED_Clear();
+						OLED_Clear();		
 					
 						B0 = 0;
 						B1 = 0;
 						B2 = 0;
-						B3 = 0;
+						B3 = 0;		
 					
-						OLED_Printf(0, 0, OLED_8X16, "Rx:");
-					
+						OLED_Printf(0, 0, OLED_8X16, "Rx:");					
 						OLED_Printf(0, 16, OLED_8X16, "L0:%02d", B0);
 						OLED_Printf(64, 16, OLED_8X16, "L1:%02d", B1);
 						OLED_Printf(0, 32, OLED_8X16, "L2:%02d", B2);
-						OLED_Printf(64, 32, OLED_8X16, "L3:%02d", B3);
-								
+						OLED_Printf(64, 32, OLED_8X16, "L3:%02d", B3);								
 						OLED_Update();
 					
 						MPU6050_ENABLE = 0;
@@ -417,7 +410,7 @@ void Function_B(void)
 			int16_t TempBright = 0;
 			if (sscanf(Serial_RxPacket, "LED%hd%%%hd", &LED_Num, &TempBright) == 2)
 			{
-				if (TempBright >= 1000)TempBright = 1000;
+				if (TempBright >= 10)TempBright = 10;
 				if (TempBright <= 0)TempBright = 0;
 				uint8_t Flag_Found = 1;
 				switch(LED_Num)
